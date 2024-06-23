@@ -14,7 +14,7 @@
   <button class="btn btn-primary" style="margin-left: 10%" onclick="startScanner()">Start Scanner</button>
   <br/>
   <br/>
-  <table style="margin-left: 10%;max-width: 50%;font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" class="table table-bordered">
+  <table id="product-table" style="margin-left: 10%;max-width: 50%;font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" class="table table-bordered">
     <thead>
       <tr>
         <th scope="col">#</th>
@@ -93,7 +93,34 @@
         console.log('Barcode detected: ', result.codeResult.code);
         alert('Barcode detected: ' + result.codeResult.code);
         Quagga.stop(); // Para o scanner após detectar um código de barras
+        addMockData(result.codeResult.code); // Adiciona dados mockados à tabela
       });
+    }
+
+    function addMockData(barcode) {
+      const productTable = document.getElementById('product-table').getElementsByTagName('tbody')[0];
+      const newRow = productTable.insertRow();
+      const newCell = newRow.insertCell();
+      
+      const rowCount = productTable.rows.length;
+
+      // Gerar dados mockados
+      const mockData = {
+        nomeProduto: `Produto ${rowCount}`,
+        quantidade: Math.floor(Math.random() * 100) + 1,
+        categoria: `Categoria ${Math.floor(Math.random() * 10) + 1}`,
+        dataEntrada: new Date().toLocaleDateString(),
+        usuarioEntrada: `Usuário ${Math.floor(Math.random() * 5) + 1}`
+      };
+
+      newRow.innerHTML = `
+        <th scope="row">${rowCount}</th>
+        <td>${mockData.nomeProduto}</td>
+        <td>${mockData.quantidade}</td>
+        <td>${mockData.categoria}</td>
+        <td>${mockData.dataEntrada}</td>
+        <td>${mockData.usuarioEntrada}</td>
+      `;
     }
   </script>
 </body>
