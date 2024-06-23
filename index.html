@@ -1,19 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Barcode Scanner</title>
+  <title>Barcode Scanner with Firebase</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="https://unpkg.com/@ericblade/quagga2@0.0.20/dist/quagga.min.js"></script>
 </head>
 <body>
-  <h1>Leitor de codigo de Barra</h1>
-  <button onclick="startScanner()">Start Scanner</button>
-  <div id="scanner-container" style="width: 100%; height: 400px;"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <div id="scanner-container"></div>
+  <button class="btn btn-primary" style="margin-left: 10%" onclick="fetchBarcodes()">Ler Produto</button>
+  <table id="barcode-table" style="margin-left: 10%;max-width: 50%;font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;" class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Format</th>
+        <th>Timestamp</th>
+        <th>Produto</th>
+        <th>Quantidade</th>
+        <th>Data</th>
+        <th>Usúario</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
+    // Configuração do Firebase
+    var firebaseConfig = {
+          apiKey: "AIzaSyBAPjcu7HPOEdgSaM2JOWcMaDPmMKJPOAE",
+          authDomain: "scanear-ef468.firebaseapp.com",
+          projectId: "scanear-ef468",
+          storageBucket: "scanear-ef468.appspot.com",
+          messagingSenderId: "564821530078",
+          appId: "1:564821530078:web:827fc9cc4ba0557852f94f",
+          measurementId: "G-6L4LV8XFEP"
+    };
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+
     function startScanner() {
       Quagga.init({
         inputStream: {
@@ -23,19 +47,19 @@
           constraints: {
             width: 640,
             height: 480,
-            facingMode: 'environment' // ou 'user' para a câmera frontal
+            facingMode: 'environment'
           }
         },
         decoder: {
           readers: [
-            'code_128_reader', 
-            'ean_reader', 
-            'ean_8_reader', 
-            'code_39_reader', 
-            'code_39_vin_reader', 
-            'codabar_reader', 
-            'upc_reader', 
-            'upc_e_reader', 
+            'code_128_reader',
+            'ean_reader',
+            'ean_8_reader',
+            'code_39_reader',
+            'code_39_vin_reader',
+            'codabar_reader',
+            'upc_reader',
+            'upc_e_reader',
             'i2of5_reader'
           ]
         }
@@ -49,11 +73,60 @@
       });
 
       Quagga.onDetected(function (result) {
-        console.log('Barcode detected: ', result.codeResult.code);
-        alert('Barcode detected: ' + result.codeResult.code);
+        var barcode = result.codeResult.code;
+        var format = result.codeResult.format;
+        var timestamp = new Date().toISOString();
+
+        console.log('Barcode detected: ', barcode);
+        alert('Barcode detected: ' + barcode);
+
+        // Grava o código de barras no Firebase
+        var database = firebase.database();
+        var newBarcodeRef = database.ref('barcodes').push();
+        newBarcodeRef.set({
+          code: barcode,
+          format: format,
+          timestamp: timestamp
+        });
+
         Quagga.stop(); // Para o scanner após detectar um código de barras
       });
     }
+
+    function fetchBarcodes() {
+      var database = firebase.database();
+      var barcodeRef = database.ref('barcodes');
+
+      barcodeRef.once('value', function(snapshot) {
+        var barcodes = snapshot.val();
+        var tbody = document.querySelector('#barcode-table tbody');
+        tbody.innerHTML = '';
+
+        for (var id in barcodes) {
+          var tr = document.createElement('tr');
+          var tdCode = document.createElement('td');
+          var tdFormat = document.createElement('td');
+          var tdTimestamp = document.createElement('td');
+
+          tdCode.textContent = barcodes[id].code;
+          tdFormat.textContent = barcodes[id].format;
+          tdTimestamp.textContent = barcodes[id].timestamp;
+
+          tr.appendChild(tdCode);
+          tr.appendChild(tdFormat);
+          tr.appendChild(tdTimestamp);
+          tr.appendChild('Produto A');
+          tr.appendChild(1);
+          tr.appendChild('23/06/2024');
+          tr.appendChild('Rudson');
+       
+          tbody.appendChild(tr);
+        }
+      });
+    }
+
+    // Inicia o scanner quando a página carregar
+    window.onload = startScanner;
   </script>
 </body>
 </html>
