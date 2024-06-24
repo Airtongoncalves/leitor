@@ -16,16 +16,16 @@
     .header {
       display: flex;
       align-items: center;
-      padding: 20px;
-      background-color: #4A90E2;
+      padding: 10px;
+      background-color: #87CEEB;
       color: white;
     }
     .logo {
-      max-width: 80px;
-      margin-right: 20px;
+      max-width: 60px;
+      margin-right: 10px;
     }
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       margin: 0;
     }
     .scanner-container {
@@ -42,14 +42,17 @@
       overflow-x: auto;
     }
     .btn-primary {
-      background-color: #4A90E2;
+      background-color: #87CEEB;
       border: none;
     }
     .btn-primary:hover {
-      background-color: #357ABD;
+      background-color: #00BFFF;
     }
     th, td {
       text-align: center;
+    }
+    .container {
+      padding: 15px;
     }
   </style>
 </head>
@@ -64,7 +67,7 @@
     <div id="scanner-container" class="scanner-container mt-4"></div>
     <div class="table-responsive mt-4">
       <table id="product-table" class="table table-bordered" style="font-family: 'Arial', sans-serif;">
-        <thead>
+        <thead class="table-light">
           <tr>
             <th scope="col">#</th>
             <th scope="col">Nome Produto</th>
